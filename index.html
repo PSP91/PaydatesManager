@@ -12,6 +12,9 @@
             --header-color: #2c3e50;
             --week-start-color: #3498db;
             --pay-day-color: #e74c3c;
+            --tab-bg-color: #ddd;
+            --active-tab-bg-color: #3498db;
+            --active-tab-text-color: white;
         }
 
         [data-theme="dark"] {
@@ -21,6 +24,9 @@
             --header-color: #ecf0f1;
             --week-start-color: #5dade2;
             --pay-day-color: #e74c3c;
+            --tab-bg-color: #4a6074;
+            --active-tab-bg-color: #5dade2;
+            --active-tab-text-color: white;
         }
 
         body {
@@ -59,6 +65,33 @@
             background-color: var(--text-color);
             color: var(--card-bg-color);
         }
+        .tabs {
+            overflow: hidden;
+            border-bottom: 1px solid var(--tab-bg-color);
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            background-color: var(--tab-bg-color);
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-color);
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: var(--active-tab-bg-color);
+            color: var(--active-tab-text-color);
+        }
+        .tab-content {
+            display: none;
+            padding: 15px 0;
+        }
+        .tab-content.active {
+            display: block;
+        }
         .paydate-card {
             background-color: var(--card-bg-color);
             border-radius: 8px;
@@ -83,6 +116,96 @@
     <div class="container">
         <h1>Paydates</h1>
         <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-        <div class="paydate-card">
-            <h3>Pay Period</h3>
-            <p><strong>Week Start:</strong> <span class="week-start">
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab('upcoming')">Upcoming</button>
+            <button class="tab-button" onclick="openTab('previous')">Previous</button>
+        </div>
+        <div id="upcoming" class="tab-content active">
+            <!-- Upcoming paydates will be dynamically inserted here -->
+        </div>
+        <div id="previous" class="tab-content">
+            <!-- Previous paydates will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Paydate data for 2025+ from your original table (rows 30–32)
+        const paydates = [
+            { weekStart: "13/01/2025", weekEnding: "26/01/2025", payDay: "06/02/2025" },
+            { weekStart: "27/01/2025", weekEnding: "09/02/2025", payDay: "20/02/2025" },
+            { weekStart: "10/02/2025", weekEnding: "23/02/2025", payDay: "06/03/2025" }
+        ];
+
+        // Current date (February 25, 2025)
+        const currentDate = new Date('2025-02-25');
+
+        function formatDate(dateStr) {
+            const [day, month, year] = dateStr.split('/').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        function displayPaydates() {
+            const upcomingContent = document.getElementById('upcoming');
+            const previousContent = document.getElementById('previous');
+
+            upcomingContent.innerHTML = '';
+            previousContent.innerHTML = '';
+
+            paydates.forEach(paydate => {
+                const payDate = formatDate(paydate.payDay);
+                const card = document.createElement('div');
+                card.className = 'paydate-card';
+                card.innerHTML = `
+                    <h3>Pay Period</h3>
+                    <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
+                    <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
+                    <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
+                `;
+
+                if (payDate > currentDate) {
+                    upcomingContent.insertBefore(card, upcomingContent.firstChild); // Add to top of upcoming
+                } else {
+                    previousContent.appendChild(card); // Add to previous
+                }
+            });
+
+            // If no upcoming paydates, show a message
+            if (!upcomingContent.firstChild) {
+                upcomingContent.innerHTML = '<p>No upcoming paydates.</p>';
+            }
+            // If no previous paydates, show a message
+            if (!previousContent.firstChild) {
+                previousContent.innerHTML = '<p>No previous paydates.</p>';
+            }
+        }
+
+        function openTab(tabName) {
+            const tabButtons = document.getElementsByClassName('tab-button');
+            const tabContents = document.getElementsByClassName('tab-content');
+
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+
+            document.getElementsByClassName('tab-button')[tabName === 'upcoming' ? 0 : 1].classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        // Initial display
+        displayPaydates();
+        openTab('upcoming'); // Default to Upcoming tab
+    </script>
+</body>
+</html>
