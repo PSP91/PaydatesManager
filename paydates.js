@@ -1,4 +1,4 @@
-// Generate paydates for 2025, 2026, and 2027, starting from the last date in your table (06/03/2025)
+// Generate paydates for 2025, 2026, and 2027, starting from the specified date (06/03/2025)
 const paydates = [];
 let currentDate = new Date('2025-03-06'); // Start from the Pay Day of 06/03/2025 (a Thursday)
 
@@ -21,7 +21,7 @@ function ensureThursday(date) {
 }
 
 // Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
-const endDate = new Date('2028-03-06'); // Extend to cover 2027 fully (52 weeks/year * 3 = ~156 paydates every 14 days)
+const endDate = new Date('2028-03-06'); // Extend to cover 2027 fully (approximately 156 paydates every 14 days)
 while (currentDate < endDate) {
     // Pay Day is a Thursday (ensured by ensureThursday)
     ensureThursday(currentDate);
@@ -44,8 +44,8 @@ while (currentDate < endDate) {
     currentDate.setDate(currentDate.getDate() + 14);
 }
 
-// Use the actual current date dynamically
-const currentDateObj = new Date();
+// Use the current date as February 25, 2025, for consistency with your context
+const currentDateObj = new Date('2025-02-25');
 
 function formatDateForComparison(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
@@ -93,3 +93,102 @@ function displayPaydates(tab) {
         paginatedPaydates.forEach(paydate => {
             const card = document.createElement('div');
             card.className = 'paydate-card';
+            card.innerHTML = `
+                <h3>Pay Period</h3>
+                <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
+                <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
+                <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
+            `;
+            content.appendChild(card);
+        });
+    } else {
+        content.innerHTML = '<p>No paydates found.</p>';
+    }
+
+    // Update pagination buttons
+    pagination.innerHTML = '';
+    if (totalPages > 1) {
+        const prevButton = document.createElement('button');
+        prevButton.textContent = 'Previous';
+        prevButton.disabled = currentPage[tab] === 1;
+        prevButton.onclick = () => changePage(tab, -1);
+        pagination.appendChild(prevButton);
+
+        const nextButton = document.createElement('button');
+        nextButton.textContent = 'Next';
+        nextButton.disabled = currentPage[tab] === totalPages;
+        nextButton.onclick = () => changePage(tab, 1);
+        pagination.appendChild(nextButton);
+    }
+}
+
+function changePage(tab, direction) {
+    currentPage[tab] += direction;
+    displayPaydates(tab);
+    filterPaydates(tab); // Reapply filters after pagination
+}
+
+// Search and filter paydates
+function filterPaydates(tab) {
+    const searchInput = document.getElementById(`${tab}Search`).value.toLowerCase();
+    const yearFilter = document.getElementById(`${tab}YearFilter`).value;
+    const monthFilter = document.getElementById(`${tab}MonthFilter`).value;
+
+    filteredPaydates[tab] = paydates.filter(paydate => {
+        const payDate = formatDateForComparison(paydate.payDay);
+        const payDateStr = `${paydate.weekStart} ${paydate.weekEnding} ${paydate.payDay}`.toLowerCase();
+        const year = payDate.getFullYear();
+        const month = payDate.getMonth() + 1;
+
+        const matchesSearch = payDateStr.includes(searchInput);
+        const matchesYear = !yearFilter || year === parseInt(yearFilter);
+        const matchesMonth = !monthFilter || month === parseInt(monthFilter);
+
+        return matchesSearch && matchesYear && matchesMonth;
+    }).sort((a, b) => {
+        const dateA = formatDateForComparison(a.payDay);
+        const dateB = formatDateForComparison(b.payDay);
+        return tab === 'upcoming' ? dateA - dateB : dateB - dateA; // Ascending for upcoming, descending for previous
+    });
+
+    currentPage[tab] = 1; // Reset to first page when filtering
+    displayPaydates(tab);
+}
+
+function openTab(tabName) {
+    const tabButtons = document.getElementsByClassName('tab-button');
+    const tabContents = document.getElementsByClassName('tab-content');
+
+    for (let i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove('active');
+    }
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove('active');
+    }
+
+    document.getElementsByClassName('tab-button')[tabName === 'upcoming' ? 0 : 1].classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+    filterPaydates(tabName); // Apply filters when switching tabs
+}
+
+function toggleTheme() {
+    const body = document.body;
+    if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+    } else {
+        body.setAttribute('data-theme', 'dark');
+    }
+}
+
+// Initial display and periodic refresh
+document.addEventListener('DOMContentLoaded', () => {
+    initializeFilteredPaydates();
+    displayPaydates('upcoming');
+    displayPaydates('previous');
+    openTab('upcoming'); // Default to Upcoming tab
+    setInterval(() => {
+        initializeFilteredPaydates();
+        displayPaydates('upcoming');
+        displayPaydates('previous');
+    }, 60000); // Refresh every minute
+});
