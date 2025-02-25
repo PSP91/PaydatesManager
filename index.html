@@ -5,25 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paydates</title>
     <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg-color: white;
+            --text-color: #333;
+            --header-color: #2c3e50;
+            --week-start-color: #3498db;
+            --pay-day-color: #e74c3c;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #2c3e50;
+            --card-bg-color: #34495e;
+            --text-color: #ecf0f1;
+            --header-color: #ecf0f1;
+            --week-start-color: #5dade2;
+            --pay-day-color: #e74c3c;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f0f4f8;
-            color: #333;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             line-height: 1.6;
+            transition: all 0.3s ease;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
+            position: relative;
         }
         h1 {
-            color: #2c3e50;
+            color: var(--header-color);
             text-align: center;
             margin-bottom: 20px;
         }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--card-bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
+            border-radius: 4px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: var(--text-color);
+            color: var(--card-bg-color);
+        }
         .paydate-card {
-            background-color: white;
+            background-color: var(--card-bg-color);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 10px;
@@ -32,32 +69,20 @@
         .paydate-card h3 {
             margin: 0 0 10px 0;
             font-size: 16px;
-            color: #2c3e50;
+            color: var(--header-color);
         }
         .paydate-card p {
             margin: 5px 0;
             font-size: 14px;
         }
-        .week-start { color: #3498db; } /* Blue for Week Start */
-        .pay-day { color: #e74c3c; } /* Red for Pay Day */
+        .week-start { color: var(--week-start-color); }
+        .pay-day { color: var(--pay-day-color); }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Paydates</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
         <div class="paydate-card">
             <h3>Pay Period</h3>
-            <p><strong>Week Start:</strong> <span class="week-start">13/01/2025</span></p>
-            <p><strong>Week Ending:</strong> 26/01/2025</p>
-            <p><strong>Pay Day:</strong> <span class="pay-day">06/02/2025</span></p>
-        </div>
-        <div class="paydate-card">
-            <h3>Pay Period</h3>
-            <p><strong>Week Start:</strong> <span class="week-start">27/01/2025</span></p>
-            <p><strong>Week Ending:</strong> 09/02/2025</p>
-            <p><strong>Pay Day:</strong> <span class="pay-day">20/02/2025</span></p>
-        </div>
-        <div class="paydate-card">
-            <h3>Pay Period</h3>
-            <p><strong>Week Start:</strong> <span class="week-start">10/02/2025</span></p>
-            <p
+            <p><strong>Week Start:</strong> <span class="week-start">
