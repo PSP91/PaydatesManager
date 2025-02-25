@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paydates Manager</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f4f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .add-form {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .add-form input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .add-form button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .add-form button:hover {
+            background-color: #2980b9;
+        }
+        .paydate-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .paydate-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+        .paydate-card p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .week-start { color: #3498db; } /* Blue for Week Start */
+        .pay-day { color: #e74c3c; } /* Red for Pay Day */
+        .edit-btn, .delete-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+        .edit-btn:hover, .delete-btn:hover {
+            opacity: 0.8;
+        }
+        .edit-form {
+            display: none;
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .edit-form input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .edit-form button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .edit-form button.cancel {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Paydates Manager</h1>
+        <div class="add-form">
+            <input type="text" id="weekStart" placeholder="Week Start (DD/MM/YYYY)">
+            <input type="text" id="weekEnding" placeholder="Week Ending (DD/MM/YYYY)">
+            <input type="text" id="payDay" placeholder="Pay Day (DD/MM/YYYY)">
+            <button onclick="addPaydate()">Add Paydate</button>
+        </div>
+        <div id="paydatesList"></div>
+    </div>
+
+    <script>
+        // Load paydates from localStorage or initialize with your data
+        let paydates = JSON.parse(localStorage.getItem('paydates')) || [
+            { weekStart: "18/12/2023", weekEnding: "31/12/2023", payDay: "11/01/2024" },
+            { weekStart: "01/01/2024", weekEnding: "14/01/2024", payDay: "25/01/2024" },
+            { weekStart: "15/01/2024", weekEnding: "28/01/2024", payDay: "08/02/2024" },
+            // Add the rest of your 32 rows here or let users add them
+        ];
+
+        function savePaydates() {
+            localStorage.setItem('paydates', JSON.stringify(paydates));
+            displayPaydates();
+        }
+
+        function displayPaydates() {
+            const paydatesList = document.getElementById('paydatesList');
+            paydatesList.innerHTML = '';
+            paydates.forEach((paydate, index) => {
+                const card = document.createElement('div');
+                card.className = 'paydate-card';
+                card.innerHTML = `
+                    <h3>Pay Period</h3>
+                    <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
+                    <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
+                    <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
+                    <button class="edit-btn" onclick="showEditForm(${index})">Edit</button>
+                    <button class="delete-btn" onclick="deletePaydate(${index})">Delete</button>
+                    <div id="editForm-${index}" class="edit-form">
+                        <input type="text" id="editWeekStart-${index}" value="${paydate.weekStart}">
+                        <input type="text" id="editWeekEnding-${index}" value="${paydate.weekEnding}">
+                        <input type="text" id="editPayDay-${index}" value="${paydate.payDay}">
+                        <button onclick="saveEdit(${index})">Save</button>
+                        <button class="cancel" onclick="hideEditForm(${index})">Cancel</button>
+                    </div>
+                `;
+                paydatesList.appendChild(card);
+            });
+        }
+
+        function addPaydate() {
+            const weekStart = document.getElementById('weekStart').value;
+            const weekEnding = document.getElementById('weekEnding').value;
+            const payDay = document.getElementById('payDay').value;
+            if (weekStart && weekEnding && payDay) {
+                paydates.push({ weekStart, weekEnding, payDay });
+                savePaydates();
+                document.getElementById('weekStart').value = '';
+                document.getElementById('weekEnding').value = '';
+                document.getElementById('payDay').value = '';
+            }
+        }
+
+        function showEditForm(index) {
+            document.getElementById(`editForm-${index}`).style.display = 'block';
+        }
+
+        function hideEditForm(index) {
+            document.getElementById(`editForm-${index}`).style.display = 'none';
+        }
+
+        function saveEdit(index) {
+            const weekStart = document.getElementById(`editWeekStart-${index}`).value;
+            const weekEnding = document.getElementById(`editWeekEnding-${index}`).value;
+            const payDay = document.getElementById(`editPayDay-${index}`).value;
+            if (weekStart && weekEnding && payDay) {
+                paydates[index] = { weekStart, weekEnding, payDay };
+                savePaydates();
+                hideEditForm(index);
+            }
+        }
+
+        function deletePaydate(index) {
+            paydates.splice(index, 1);
+            savePaydates();
+        }
+
+        // Initial display
+        displayPaydates();
+    </script>
+</body>
+</html>
