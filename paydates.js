@@ -1,4 +1,4 @@
-// Generate paydates for 2025, 2026, and 2027, starting from the last date in your table (06/03/2025)
+// paydates.js (with dynamic date and real-time updates)
 const paydates = [];
 let currentDate = new Date('2025-03-06'); // Start from the Pay Day of 06/03/2025
 
@@ -32,8 +32,8 @@ for (let i = 0; i < 156; i++) { // 52 weeks/year * 3 years = 156 weeks
     currentDate.setDate(currentDate.getDate() + 7); // Add 7 days for the next week
 }
 
-// Current date (February 25, 2025)
-const currentDateObj = new Date('2025-02-25');
+// Use the actual current date dynamically
+const currentDateObj = new Date();
 
 function formatDateForComparison(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
@@ -126,8 +126,11 @@ function toggleTheme() {
     }
 }
 
-// Initial display
+// Initial display and periodic refresh
 document.addEventListener('DOMContentLoaded', () => {
     displayPaydates();
     openTab('upcoming'); // Default to Upcoming tab
+    setInterval(() => {
+        displayPaydates();
+    }, 60000); // Refresh every minute
 });
