@@ -21,7 +21,7 @@ function ensureThursday(date) {
 }
 
 // Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
-const endDate = new Date('2028-03-06'); // Extend to cover 2027 fully
+const endDate = new Date('2028-03-06'); // Extend to cover 2027 fully (52 weeks/year * 3 = ~156 paydates every 14 days)
 while (currentDate < endDate) {
     // Pay Day is a Thursday (ensured by ensureThursday)
     ensureThursday(currentDate);
@@ -59,4 +59,37 @@ let filteredPaydates = { upcoming: [], previous: [] };
 
 // Initialize filtered paydates
 function initializeFilteredPaydates() {
-    filtered
+    filteredPaydates.upcoming = paydates.filter(paydate => {
+        const payDate = formatDateForComparison(paydate.payDay);
+        return payDate > currentDateObj;
+    }).sort((a, b) => {
+        const dateA = formatDateForComparison(a.payDay);
+        const dateB = formatDateForComparison(b.payDay);
+        return dateA - dateB; // Ascending order (next paydate at top, then chronological)
+    });
+
+    filteredPaydates.previous = paydates.filter(paydate => {
+        const payDate = formatDateForComparison(paydate.payDay);
+        return payDate <= currentDateObj;
+    }).sort((a, b) => {
+        const dateA = formatDateForComparison(a.payDay);
+        const dateB = formatDateForComparison(b.payDay);
+        return dateB - dateA; // Descending order (most recent first)
+    });
+}
+
+// Display paydates with pagination
+function displayPaydates(tab) {
+    const content = document.getElementById(`${tab}Paydates`);
+    const pagination = document.getElementById(`${tab}Pagination`);
+    const totalItems = filteredPaydates[tab].length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const start = (currentPage[tab] - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedPaydates = filteredPaydates[tab].slice(start, end);
+
+    content.innerHTML = '';
+    if (paginatedPaydates.length > 0) {
+        paginatedPaydates.forEach(paydate => {
+            const card = document.createElement('div');
+            card.className = 'paydate-card';
