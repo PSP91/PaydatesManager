@@ -121,10 +121,10 @@
             <button class="tab-button" onclick="openTab('previous')">Previous</button>
         </div>
         <div id="upcoming" class="tab-content active">
-            <!-- Upcoming paydates will be dynamically inserted here -->
+            <!-- Upcoming paydates will be dynamically inserted here, most current at the top -->
         </div>
         <div id="previous" class="tab-content">
-            <!-- Previous paydates will be dynamically inserted here -->
+            <!-- Previous paydates will be dynamically inserted here, most recent at the top -->
         </div>
     </div>
 
@@ -178,30 +178,57 @@
             upcomingContent.innerHTML = '';
             previousContent.innerHTML = '';
 
-            paydates.forEach(paydate => {
+            // Sort upcoming paydates in descending order (most current at the top)
+            const upcomingPaydates = paydates.filter(paydate => {
                 const payDate = formatDateForComparison(paydate.payDay);
-                const card = document.createElement('div');
-                card.className = 'paydate-card';
-                card.innerHTML = `
-                    <h3>Pay Period</h3>
-                    <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
-                    <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
-                    <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
-                `;
-
-                if (payDate > currentDateObj) {
-                    upcomingContent.insertBefore(card, upcomingContent.firstChild); // Add to top of upcoming
-                } else {
-                    previousContent.appendChild(card); // Add to previous
-                }
+                return payDate > currentDateObj;
+            }).sort((a, b) => {
+                const dateA = formatDateForComparison(a.payDay);
+                const dateB = formatDateForComparison(b.payDay);
+                return dateB - dateA; // Descending order (most recent first)
             });
 
-            // If no upcoming paydates, show a message
-            if (!upcomingContent.firstChild) {
+            // Sort previous paydates in descending order (most recent at the top)
+            const previousPaydates = paydates.filter(paydate => {
+                const payDate = formatDateForComparison(paydate.payDay);
+                return payDate <= currentDateObj;
+            }).sort((a, b) => {
+                const dateA = formatDateForComparison(a.payDay);
+                const dateB = formatDateForComparison(b.payDay);
+                return dateB - dateA; // Descending order (most recent first)
+            });
+
+            // Display upcoming paydates
+            if (upcomingPaydates.length > 0) {
+                upcomingPaydates.forEach(paydate => {
+                    const card = document.createElement('div');
+                    card.className = 'paydate-card';
+                    card.innerHTML = `
+                        <h3>Pay Period</h3>
+                        <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
+                        <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
+                        <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
+                    `;
+                    upcomingContent.appendChild(card);
+                });
+            } else {
                 upcomingContent.innerHTML = '<p>No upcoming paydates.</p>';
             }
-            // If no previous paydates, show a message
-            if (!previousContent.firstChild) {
+
+            // Display previous paydates
+            if (previousPaydates.length > 0) {
+                previousPaydates.forEach(paydate => {
+                    const card = document.createElement('div');
+                    card.className = 'paydate-card';
+                    card.innerHTML = `
+                        <h3>Pay Period</h3>
+                        <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
+                        <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
+                        <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
+                    `;
+                    previousContent.appendChild(card);
+                });
+            } else {
                 previousContent.innerHTML = '<p>No previous paydates.</p>';
             }
         }
