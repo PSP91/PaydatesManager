@@ -96,6 +96,7 @@ const itemsPerLoad = 10;
 // Initialize filtered paydates
 function initializeFilteredPaydates() {
     try {
+        console.log('Initializing filtered paydates...');
         filteredPaydates.upcoming = paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             return payDate > currentDateObj;
@@ -125,6 +126,7 @@ function initializeFilteredPaydates() {
 // Display paydates with "Show More" functionality
 function displayPaydates(tab) {
     try {
+        console.log(`Attempting to display ${tab} paydates: visibleItems[${tab}] = ${visibleItems[tab]}, filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}`);
         const content = document.getElementById(`${tab}Paydates`);
         const showMoreButton = document.getElementById(`${tab}ShowMore`);
         const errorElement = document.getElementById(`${tab}Error`);
@@ -134,9 +136,11 @@ function displayPaydates(tab) {
             throw new Error(`DOM elements for ${tab} are missing`);
         }
 
-        console.log(`Displaying ${tab} paydates: filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}, visibleItems[${tab}] = ${visibleItems[tab]}`);
         const totalItems = filteredPaydates[tab]?.length || 0;
-        const end = Math.min(visibleItems[tab], totalItems);
+        if (totalItems === 0) {
+            console.warn(`No paydates available for ${tab} in filteredPaydates`);
+        }
+        const end = Math.min(visibleItems[tab] || 10, totalItems); // Default to 10 if visibleItems[tab] is undefined
         const paginatedPaydates = filteredPaydates[tab]?.slice(0, end) || [];
 
         content.innerHTML = '';
