@@ -88,10 +88,9 @@ function formatDateForComparison(dateStr) {
     return new Date(year, month - 1, day, 0, 0, 0); // Explicitly set time to midnight for consistency
 }
 
-// Pagination settings
-const itemsPerPage = 10;
-let currentPage = { upcoming: 1, previous: 1 };
-let filteredPaydates = { upcoming: [], previous: [] };
+// Show More settings
+const itemsPerLoad = 10;
+let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible
 
 // Initialize filtered paydates
 function initializeFilteredPaydates() {
@@ -120,17 +119,15 @@ function initializeFilteredPaydates() {
     }
 }
 
-// Display paydates with pagination
+// Display paydates with "Show More" functionality
 function displayPaydates(tab) {
     try {
         const content = document.getElementById(`${tab}Paydates`);
-        const pagination = document.getElementById(`${tab}Pagination`);
+        const showMoreButton = document.getElementById(`${tab}ShowMore`);
         const errorElement = document.getElementById(`${tab}Error`);
         const totalItems = filteredPaydates[tab].length;
-        const totalPages = Math.ceil(totalItems / itemsPerPage);
-        const start = (currentPage[tab] - 1) * itemsPerPage;
-        const end = Math.min(start + itemsPerPage, totalItems); // Ensure end doesn't exceed totalItems
-        const paginatedPaydates = filteredPaydates[tab].slice(start, end);
+        const end = Math.min(visibleItems[tab], totalItems);
+        const paginatedPaydates = filteredPaydates[tab].slice(0, end);
 
         content.innerHTML = '';
         errorElement.style.display = 'none';
@@ -150,22 +147,9 @@ function displayPaydates(tab) {
             content.innerHTML = '<p>No paydates found.</p>';
         }
 
-        // Update pagination buttons
-        pagination.innerHTML = '';
-        if (totalPages > 1) {
-            const prevButton = document.createElement('button');
-            prevButton.textContent = 'Previous';
-            prevButton.disabled = currentPage[tab] === 1;
-            prevButton.onclick = () => changePage(tab, -1);
-            pagination.appendChild(prevButton);
-
-            const nextButton = document.createElement('button');
-            nextButton.textContent = 'Next';
-            nextButton.disabled = currentPage[tab] === totalPages;
-            nextButton.onclick = () => changePage(tab, 1);
-            pagination.appendChild(nextButton);
-        }
-        console.log(`Displayed ${tab} paydates for page ${currentPage[tab]}, total pages: ${totalPages}, total items: ${totalItems}, start: ${start}, end: ${end}:`, paginatedPaydates);
+        // Update "Show More" button state
+        showMoreButton.disabled = end >= totalItems;
+        console.log(`Displayed ${tab} paydates, showing ${end} of ${totalItems} items:`, paginatedPaydates);
     } catch (error) {
         console.error(`Error displaying ${tab} paydates:`, error);
         const errorElement = document.getElementById(`${tab}Error`);
@@ -173,14 +157,14 @@ function displayPaydates(tab) {
     }
 }
 
-function changePage(tab, direction) {
+function showMore(tab) {
     try {
-        currentPage[tab] = Math.max(1, Math.min(currentPage[tab] + direction, Math.ceil(filteredPaydates[tab].length / itemsPerPage)));
+        visibleItems[tab] += itemsPerLoad;
         displayPaydates(tab);
-        filterPaydates(tab); // Reapply filters after pagination
-        console.log(`Changed page for ${tab} to ${currentPage[tab]}, direction: ${direction}`);
+        filterPaydates(tab); // Reapply filters after showing more
+        console.log(`Show More clicked for ${tab}, now showing ${visibleItems[tab]} items`);
     } catch (error) {
-        console.error(`Error changing page for ${tab}:`, error);
+        console.error(`Error showing more for ${tab}:`, error);
     }
 }
 
@@ -208,7 +192,7 @@ function filterPaydates(tab) {
             return tab === 'upcoming' ? dateA - dateB : dateB - dateA; // Ascending for upcoming, descending for previous
         });
 
-        currentPage[tab] = 1; // Reset to first page when filtering
+        visibleItems[tab] = Math.min(10, filteredPaydates[tab].length); // Reset to show first 10 items after filtering
         displayPaydates(tab);
         console.log(`Filtered ${tab} paydates (count):`, filteredPaydates[tab].length);
     } catch (error) {
