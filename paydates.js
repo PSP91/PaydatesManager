@@ -1,19 +1,6 @@
 // Generate paydates for 2025, 2026, and 2027, starting from the specified pattern (06/03/2025)
 const paydates = [];
-
-// Manually define the initial paydates based on your specification from the document
-const initialPaydates = [
-    { payDay: '06/03/2025', weekStart: '10/02/2025', weekEnding: '23/02/2025' },
-    { payDay: '20/03/2025', weekStart: '24/02/2025', weekEnding: '09/03/2025' },
-    { payDay: '03/04/2025', weekStart: '10/03/2025', weekEnding: '23/03/2025' },
-    { payDay: '17/04/2025', weekStart: '24/03/2025', weekEnding: '07/04/2025' },
-    { payDay: '01/05/2025', weekStart: '07/04/2025', weekEnding: '21/04/2025' },
-    { payDay: '15/05/2025', weekStart: '21/04/2025', weekEnding: '05/05/2025' },
-    { payDay: '29/05/2025', weekStart: '05/05/2025', weekEnding: '19/05/2025' },
-    { payDay: '12/06/2025', weekStart: '19/05/2025', weekEnding: '02/06/2025' },
-    { payDay: '26/06/2025', weekStart: '02/06/2025', weekEnding: '16/06/2025' }
-    // Continue with the pattern if you have more dates in the document, ensuring every 14 days and Thursdays
-];
+let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -39,37 +26,57 @@ function ensureThursday(date) {
     return date;
 }
 
-// Generate subsequent paydates every 14 days, starting from the last initial paydate (26/06/2025)
-let lastPayDate = parseDate('26/06/2025');
+// Function to ensure a date is a Monday
+function ensureMonday(date) {
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToMonday = (1 - dayOfWeek + 7) % 7; // Calculate days to next Monday
+    if (daysToMonday !== 0) {
+        date.setDate(date.getDate() + daysToMonday);
+    }
+    return date;
+}
+
+// Function to ensure a date is a Sunday
+function ensureSunday(date) {
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const daysToSunday = (0 - dayOfWeek + 7) % 7; // Calculate days to next Sunday
+    if (daysToSunday !== 0) {
+        date.setDate(date.getDate() + daysToSunday);
+    }
+    return date;
+}
+
+// Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
 const endDate = new Date('2028-03-06T00:00:00'); // Extend to cover 2027 fully (approximately 78 paydates)
 
-while (lastPayDate < endDate) {
+while (currentDate < endDate) {
     try {
-        // Move to the next Pay Day (14 days later)
-        lastPayDate.setDate(lastPayDate.getDate() + 14);
-        ensureThursday(lastPayDate); // Ensure Pay Day is a Thursday
+        // Pay Day is a Thursday (ensured by ensureThursday)
+        ensureThursday(currentDate);
 
-        // Week Ending is 9 days before Pay Day
-        const weekEnding = new Date(lastPayDate);
-        weekEnding.setDate(lastPayDate.getDate() - 9);
+        // Week Ending is a Sunday, 2 weeks (14 days) before Pay Day
+        const weekEnding = new Date(currentDate);
+        weekEnding.setDate(currentDate.getDate() - 14);
+        ensureSunday(weekEnding);
 
-        // Week Starting is 14 days before Week Ending
-        const weekStart = new Date(weekEnding);
-        weekStart.setDate(weekEnding.getDate() - 14);
+        // Week Starting is a Monday, 4 weeks (28 days) before Pay Day
+        const weekStart = new Date(currentDate);
+        weekStart.setDate(currentDate.getDate() - 28);
+        ensureMonday(weekStart);
 
         paydates.push({
             weekStart: formatDate(weekStart),
             weekEnding: formatDate(weekEnding),
-            payDay: formatDate(lastPayDate)
+            payDay: formatDate(currentDate)
         });
+
+        // Move to the next Pay Day (14 days later), ensuring no day offset
+        currentDate.setDate(currentDate.getDate() + 14);
     } catch (error) {
-        console.error('Error generating paydate:', error, { lastPayDate, weekStart, weekEnding });
+        console.error('Error generating paydate:', error, { currentDate, weekStart, weekEnding });
         throw error;
     }
 }
-
-// Combine initial paydates with generated paydates
-paydates.unshift(...initialPaydates);
 
 console.log('Paydates generated:', paydates);
 
