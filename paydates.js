@@ -2,6 +2,7 @@
 const paydates = [];
 let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
 let filteredPaydates = { upcoming: [], previous: [] }; // Ensure filteredPaydates is defined globally
+let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible for each tab
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -91,7 +92,6 @@ function formatDateForComparison(dateStr) {
 
 // Show More settings
 const itemsPerLoad = 10;
-let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible
 
 // Initialize filtered paydates
 function initializeFilteredPaydates() {
@@ -114,6 +114,8 @@ function initializeFilteredPaydates() {
             return dateB - dateA; // Descending order (most recent first)
         });
         console.log('Filtered paydates initialized (upcoming, previous):', { upcoming: filteredPaydates.upcoming.length, previous: filteredPaydates.previous.length });
+        displayPaydates('upcoming'); // Display initial paydates after initialization
+        displayPaydates('previous');
     } catch (error) {
         console.error('Error initializing filtered paydates:', error);
         throw error;
@@ -169,6 +171,10 @@ function displayPaydates(tab) {
 
 function showMore(tab) {
     try {
+        if (!filteredPaydates[tab] || !visibleItems[tab]) {
+            console.error(`Invalid state for ${tab}: filteredPaydates or visibleItems is undefined`);
+            throw new Error(`Invalid state for ${tab}`);
+        }
         visibleItems[tab] += itemsPerLoad;
         displayPaydates(tab);
         filterPaydates(tab); // Reapply filters after showing more
