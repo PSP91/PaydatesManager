@@ -1,6 +1,19 @@
 // Generate paydates for 2025, 2026, and 2027, starting from the specified pattern (06/03/2025)
 const paydates = [];
-let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
+
+// Manually define the initial paydates based on your specification from the document
+const initialPaydates = [
+    { payDay: '06/03/2025', weekStart: '10/02/2025', weekEnding: '23/02/2025' },
+    { payDay: '20/03/2025', weekStart: '24/02/2025', weekEnding: '09/03/2025' },
+    { payDay: '03/04/2025', weekStart: '10/03/2025', weekEnding: '23/03/2025' },
+    { payDay: '17/04/2025', weekStart: '24/03/2025', weekEnding: '07/04/2025' },
+    { payDay: '01/05/2025', weekStart: '07/04/2025', weekEnding: '21/04/2025' },
+    { payDay: '15/05/2025', weekStart: '21/04/2025', weekEnding: '05/05/2025' },
+    { payDay: '29/05/2025', weekStart: '05/05/2025', weekEnding: '19/05/2025' },
+    { payDay: '12/06/2025', weekStart: '19/05/2025', weekEnding: '02/06/2025' },
+    { payDay: '26/06/2025', weekStart: '02/06/2025', weekEnding: '16/06/2025' }
+    // Continue with the pattern if you have more dates in the document, ensuring every 14 days and Thursdays
+];
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -8,6 +21,12 @@ function formatDate(date) {
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
+}
+
+// Function to parse date from DD/MM/YYYY string
+function parseDate(dateStr) {
+    const [day, month, year] = dateStr.split('/').map(Number);
+    return new Date(year, month - 1, day, 0, 0, 0); // Explicitly set time to midnight for consistency
 }
 
 // Function to ensure a date is a Thursday
@@ -20,52 +39,37 @@ function ensureThursday(date) {
     return date;
 }
 
-// Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
-const endDate = new Date('2028-03-06T00:00:00'); // Extend to cover 2027 fully (approximately 78 paydates every 14 days over 3 years)
-while (currentDate < endDate) {
+// Generate subsequent paydates every 14 days, starting from the last initial paydate (26/06/2025)
+let lastPayDate = parseDate('26/06/2025');
+const endDate = new Date('2028-03-06T00:00:00'); // Extend to cover 2027 fully (approximately 78 paydates)
+
+while (lastPayDate < endDate) {
     try {
-        // Pay Day is a Thursday (ensured by ensureThursday)
-        ensureThursday(currentDate);
+        // Move to the next Pay Day (14 days later)
+        lastPayDate.setDate(lastPayDate.getDate() + 14);
+        ensureThursday(lastPayDate); // Ensure Pay Day is a Thursday
 
         // Week Ending is 9 days before Pay Day
-        const weekEnding = new Date(currentDate);
-        weekEnding.setDate(currentDate.getDate() - 9);
+        const weekEnding = new Date(lastPayDate);
+        weekEnding.setDate(lastPayDate.getDate() - 9);
 
         // Week Starting is 14 days before Week Ending
         const weekStart = new Date(weekEnding);
         weekStart.setDate(weekEnding.getDate() - 14);
 
-        // Verify the pattern matches your specification
-        if (formatDate(currentDate) === '06/03/2025') {
-            // Ensure the first paydate matches exactly: Pay Day 06/03/2025, Week Ending 23/02/2025, Week Starting 10/02/2025
-            paydates.push({
-                weekStart: '10/02/2025',
-                weekEnding: '23/02/2025',
-                payDay: '06/03/2025'
-            });
-        } else if (formatDate(currentDate) === '20/03/2025') {
-            // Ensure the second paydate matches exactly: Pay Day 20/03/2025, Week Ending 09/03/2025, Week Starting 24/02/2025
-            paydates.push({
-                weekStart: '24/02/2025',
-                weekEnding: '09/03/2025',
-                payDay: '20/03/2025'
-            });
-        } else {
-            // Continue the pattern every 14 days, ensuring no day offset
-            paydates.push({
-                weekStart: formatDate(weekStart),
-                weekEnding: formatDate(weekEnding),
-                payDay: formatDate(currentDate)
-            });
-        }
-
-        // Move to the next Pay Day (14 days later), ensuring no day offset
-        currentDate.setDate(currentDate.getDate() + 14);
+        paydates.push({
+            weekStart: formatDate(weekStart),
+            weekEnding: formatDate(weekEnding),
+            payDay: formatDate(lastPayDate)
+        });
     } catch (error) {
-        console.error('Error generating paydate:', error, { currentDate, weekStart, weekEnding });
+        console.error('Error generating paydate:', error, { lastPayDate, weekStart, weekEnding });
         throw error;
     }
 }
+
+// Combine initial paydates with generated paydates
+paydates.unshift(...initialPaydates);
 
 console.log('Paydates generated:', paydates);
 
