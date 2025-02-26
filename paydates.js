@@ -93,6 +93,8 @@ const itemsPerLoad = 10;
 let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible
 
 // Initialize filtered paydates
+let filteredPaydates = { upcoming: [], previous: [] };
+
 function initializeFilteredPaydates() {
     try {
         filteredPaydates.upcoming = paydates.filter(paydate => {
@@ -125,6 +127,12 @@ function displayPaydates(tab) {
         const content = document.getElementById(`${tab}Paydates`);
         const showMoreButton = document.getElementById(`${tab}ShowMore`);
         const errorElement = document.getElementById(`${tab}Error`);
+
+        if (!content || !showMoreButton || !errorElement) {
+            console.error(`DOM elements not found for ${tab}: content=${content}, showMoreButton=${showMoreButton}, errorElement=${errorElement}`);
+            throw new Error(`DOM elements for ${tab} are missing`);
+        }
+
         const totalItems = filteredPaydates[tab].length;
         const end = Math.min(visibleItems[tab], totalItems);
         const paginatedPaydates = filteredPaydates[tab].slice(0, end);
@@ -153,7 +161,10 @@ function displayPaydates(tab) {
     } catch (error) {
         console.error(`Error displaying ${tab} paydates:`, error);
         const errorElement = document.getElementById(`${tab}Error`);
-        errorElement.style.display = 'block';
+        if (errorElement) {
+            errorElement.style.display = 'block';
+            errorElement.textContent = `Error loading ${tab} paydates. Check console for details: ${error.message}`;
+        }
     }
 }
 
@@ -171,9 +182,9 @@ function showMore(tab) {
 // Search and filter paydates
 function filterPaydates(tab) {
     try {
-        const searchInput = document.getElementById(`${tab}Search`).value.toLowerCase();
-        const yearFilter = document.getElementById(`${tab}YearFilter`).value;
-        const monthFilter = document.getElementById(`${tab}MonthFilter`).value;
+        const searchInput = document.getElementById(`${tab}Search`)?.value.toLowerCase() || '';
+        const yearFilter = document.getElementById(`${tab}YearFilter`)?.value || '';
+        const monthFilter = document.getElementById(`${tab}MonthFilter`)?.value || '';
 
         filteredPaydates[tab] = paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
