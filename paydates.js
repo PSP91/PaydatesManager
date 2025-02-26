@@ -78,7 +78,7 @@ while (currentDate < endDate) {
     }
 }
 
-console.log('Paydates generated:', paydates);
+console.log('Paydates generated (total):', paydates.length, paydates);
 
 // Use the current date as February 25, 2025, for consistency with your context
 const currentDateObj = new Date('2025-02-25T00:00:00');
@@ -113,7 +113,7 @@ function initializeFilteredPaydates() {
             const dateB = formatDateForComparison(b.payDay);
             return dateB - dateA; // Descending order (most recent first)
         });
-        console.log('Filtered paydates initialized:', { upcoming: filteredPaydates.upcoming, previous: filteredPaydates.previous });
+        console.log('Filtered paydates initialized (upcoming, previous):', { upcoming: filteredPaydates.upcoming.length, previous: filteredPaydates.previous.length });
     } catch (error) {
         console.error('Error initializing filtered paydates:', error);
         throw error;
@@ -129,7 +129,7 @@ function displayPaydates(tab) {
         const totalItems = filteredPaydates[tab].length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
         const start = (currentPage[tab] - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
+        const end = Math.min(start + itemsPerPage, totalItems); // Ensure end doesn't exceed totalItems
         const paginatedPaydates = filteredPaydates[tab].slice(start, end);
 
         content.innerHTML = '';
@@ -165,7 +165,7 @@ function displayPaydates(tab) {
             nextButton.onclick = () => changePage(tab, 1);
             pagination.appendChild(nextButton);
         }
-        console.log(`Displayed ${tab} paydates for page ${currentPage[tab]}, total pages: ${totalPages}, total items: ${totalItems}:`, paginatedPaydates);
+        console.log(`Displayed ${tab} paydates for page ${currentPage[tab]}, total pages: ${totalPages}, total items: ${totalItems}, start: ${start}, end: ${end}:`, paginatedPaydates);
     } catch (error) {
         console.error(`Error displaying ${tab} paydates:`, error);
         const errorElement = document.getElementById(`${tab}Error`);
@@ -175,10 +175,10 @@ function displayPaydates(tab) {
 
 function changePage(tab, direction) {
     try {
-        currentPage[tab] += direction;
+        currentPage[tab] = Math.max(1, Math.min(currentPage[tab] + direction, Math.ceil(filteredPaydates[tab].length / itemsPerPage)));
         displayPaydates(tab);
         filterPaydates(tab); // Reapply filters after pagination
-        console.log(`Changed page for ${tab} to ${currentPage[tab]}`);
+        console.log(`Changed page for ${tab} to ${currentPage[tab]}, direction: ${direction}`);
     } catch (error) {
         console.error(`Error changing page for ${tab}:`, error);
     }
@@ -210,7 +210,7 @@ function filterPaydates(tab) {
 
         currentPage[tab] = 1; // Reset to first page when filtering
         displayPaydates(tab);
-        console.log(`Filtered ${tab} paydates:`, filteredPaydates[tab]);
+        console.log(`Filtered ${tab} paydates (count):`, filteredPaydates[tab].length);
     } catch (error) {
         console.error(`Error filtering ${tab} paydates:`, error);
     }
