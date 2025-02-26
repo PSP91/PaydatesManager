@@ -1,95 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paydates</title>
     <style>
+        :root {
+            --bg-color: #f0f4f8;
+            --card-bg-color: white;
+            --text-color: #333;
+            --header-color: #2c3e50;
+            --week-start-color: #3498db;
+            --pay-day-color: #e74c3c;
+            --tab-bg-color: #ddd;
+            --active-tab-bg-color: #3498db;
+            --active-tab-text-color: white;
+            --input-bg-color: #fff;
+            --input-border-color: #ddd;
+            --button-bg-color: #3498db;
+            --button-text-color: white;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #2c3e50;
+            --card-bg-color: #34495e;
+            --text-color: #ecf0f1;
+            --header-color: #ecf0f1;
+            --week-start-color: #5dade2;
+            --pay-day-color: #e74c3c;
+            --tab-bg-color: #4a6074;
+            --active-tab-bg-color: #5dade2;
+            --active-tab-text-color: white;
+            --input-bg-color: #34495e;
+            --input-border-color: #4a6074;
+            --button-bg-color: #5dade2;
+            --button-text-color: white;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #ecf0f1;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .tabs {
-            overflow: hidden;
-            border-bottom: 1px solid #4a6074;
-            margin-bottom: 20px;
-        }
-        .tab-button {
-            background-color: #4a6074;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-size: 16px;
-            color: #ecf0f1;
-            border-radius: 4px 4px 0 0;
-            margin-right: 5px;
-        }
-        .tab-button.active {
-            background-color: #5dade2;
-            color: white;
-        }
-        .tab-content {
-            display: none;
-            padding: 15px 0;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .paydate-card {
-            background-color: #34495e;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .paydate-card h3 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            color: #ecf0f1;
-        }
-        .paydate-card p {
-            margin: 5px 0;
-            font-size: 14px;
-        }
-        .week-start { color: #5dade2; }
-        .pay-day { color: #e74c3c; }
-        .error {
-            color: red;
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Paydates</h1>
-        <div class="tabs">
-            <button class="tab-button active" onclick="openTab('upcoming')">Upcoming</button>
-            <button class="tab-button" onclick="openTab('previous')">Previous</button>
-        </div>
-        <div id="upcoming" class="tab-content active">
-            <div id="upcomingPaydates"></div>
-            <div id="upcomingError" class="error" style="display: none;">Error loading upcoming paydates. Check console for details.</div>
-        </div>
-        <div id="previous" class="tab-content">
-            <div id="previousPaydates"></div>
-            <div id="previousError" class="error" style="display: none;">Error loading previous paydates. Check console for details.</div>
-        </div>
-    </div>
-
-    <script src="paydates.js"></script>
-</body>
-</html>
+            margin:
