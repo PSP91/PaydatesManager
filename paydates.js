@@ -1,6 +1,7 @@
-// Generate paydates for 2025 and 2026, starting from the specified pattern (06/03/2025)
+// Global variables
 const paydates = [];
 let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
+let filteredPaydates = { upcoming: [], previous: [] }; // Initialize filteredPaydates here
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -93,8 +94,6 @@ const itemsPerLoad = 10;
 let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible
 
 // Initialize filtered paydates
-let filteredPaydates = { upcoming: [], previous: [] };
-
 function initializeFilteredPaydates() {
     try {
         filteredPaydates.upcoming = paydates.filter(paydate => {
