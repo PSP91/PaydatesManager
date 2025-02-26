@@ -47,7 +47,7 @@ function ensureSunday(date) {
 }
 
 // Generate paydates for 2025 and 2026, every 14 days starting from 06/03/2025
-const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (adjust if you need 2027 as well)
+const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (approximately 52 paydates)
 
 while (currentDate < endDate) {
     try {
@@ -165,7 +165,7 @@ function displayPaydates(tab) {
             nextButton.onclick = () => changePage(tab, 1);
             pagination.appendChild(nextButton);
         }
-        console.log(`Displayed ${tab} paydates for page ${currentPage[tab]}:`, paginatedPaydates);
+        console.log(`Displayed ${tab} paydates for page ${currentPage[tab]}, total pages: ${totalPages}, total items: ${totalItems}:`, paginatedPaydates);
     } catch (error) {
         console.error(`Error displaying ${tab} paydates:`, error);
         const errorElement = document.getElementById(`${tab}Error`);
@@ -178,6 +178,7 @@ function changePage(tab, direction) {
         currentPage[tab] += direction;
         displayPaydates(tab);
         filterPaydates(tab); // Reapply filters after pagination
+        console.log(`Changed page for ${tab} to ${currentPage[tab]}`);
     } catch (error) {
         console.error(`Error changing page for ${tab}:`, error);
     }
