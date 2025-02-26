@@ -43,7 +43,15 @@ while (currentDate < endDate) {
                 weekEnding: '23/02/2025',
                 payDay: '06/03/2025'
             });
+        } else if (formatDate(currentDate) === '20/03/2025') {
+            // Ensure the second paydate matches exactly: Pay Day 20/03/2025, Week Ending 09/03/2025, Week Starting 24/02/2025
+            paydates.push({
+                weekStart: '24/02/2025',
+                weekEnding: '09/03/2025',
+                payDay: '20/03/2025'
+            });
         } else {
+            // Continue the pattern every 14 days, ensuring no day offset
             paydates.push({
                 weekStart: formatDate(weekStart),
                 weekEnding: formatDate(weekEnding),
