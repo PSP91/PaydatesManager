@@ -1,7 +1,7 @@
 // Global variables
 const paydates = [];
 let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
-let filteredPaydates = { upcoming: [], previous: [] }; // Initialize filteredPaydates here
+let filteredPaydates = { upcoming: [], previous: [] }; // Ensure filteredPaydates is defined globally
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -48,7 +48,7 @@ function ensureSunday(date) {
 }
 
 // Generate paydates for 2025 and 2026, every 14 days starting from 06/03/2025
-const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (approximately 52 paydates)
+const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (approximately 48 paydates)
 
 while (currentDate < endDate) {
     try {
