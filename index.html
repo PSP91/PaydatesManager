@@ -175,16 +175,16 @@
             <button class="tab-button active" onclick="openTab('upcoming')">Upcoming</button>
             <button class="tab-button" onclick="openTab('previous')">Previous</button>
         </div>
-        <div id="upcoming" class="tab-content active">
+        <div id="upcoming" class="tab-content active" data-debug="upcoming-tab">
             <div class="search-filter">
-                <input type="text" id="upcomingSearch" placeholder="Search paydates..." onkeyup="filterPaydates('upcoming')">
-                <select id="upcomingYearFilter" onchange="filterPaydates('upcoming')">
+                <input type="text" id="upcomingSearch" placeholder="Search paydates..." onkeyup="filterPaydates('upcoming')" data-debug="upcoming-search">
+                <select id="upcomingYearFilter" onchange="filterPaydates('upcoming')" data-debug="upcoming-year-filter">
                     <option value="">All Years</option>
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
                     <option value="2027">2027</option>
                 </select>
-                <select id="upcomingMonthFilter" onchange="filterPaydates('upcoming')">
+                <select id="upcomingMonthFilter" onchange="filterPaydates('upcoming')" data-debug="upcoming-month-filter">
                     <option value="">All Months</option>
                     <option value="1">January</option>
                     <option value="2">February</option>
@@ -204,16 +204,16 @@
             <button id="upcomingShowMore" class="show-more" onclick="showMore('upcoming')" data-debug="upcoming-show-more">Show More</button>
             <div id="upcomingError" class="error" data-debug="upcoming-error">Error loading upcoming paydates. Check console for details.</div>
         </div>
-        <div id="previous" class="tab-content">
+        <div id="previous" class="tab-content" data-debug="previous-tab">
             <div class="search-filter">
-                <input type="text" id="previousSearch" placeholder="Search paydates..." onkeyup="filterPaydates('previous')">
-                <select id="previousYearFilter" onchange="filterPaydates('previous')">
+                <input type="text" id="previousSearch" placeholder="Search paydates..." onkeyup="filterPaydates('previous')" data-debug="previous-search">
+                <select id="previousYearFilter" onchange="filterPaydates('previous')" data-debug="previous-year-filter">
                     <option value="">All Years</option>
                     <option value="2025">2025</option>
                     <option value="2026">2026</option>
                     <option value="2027">2027</option>
                 </select>
-                <select id="previousMonthFilter" onchange="filterPaydates('previous')">
+                <select id="previousMonthFilter" onchange="filterPaydates('previous')" data-debug="previous-month-filter">
                     <option value="">All Months</option>
                     <option value="1">January</option>
                     <option value="2">February</option>
