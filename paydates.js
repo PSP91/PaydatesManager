@@ -126,9 +126,9 @@ function initializeFilteredPaydates() {
 // Display paydates with "Show More" functionality
 function displayPaydates(tab) {
     try {
-        console.log(`Attempting to display ${tab} paydates: visibleItems[${tab}] = ${window.visibleItems[tab]}, filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
+        console.log(`Attempting to display ${tab} paydates: window.visibleItems[${tab}] = ${window.visibleItems[tab]}, window.filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
         const content = document.getElementById(`${tab}Paydates`);
-        const showMoreButton = document.getElementById(`${tab}ShowMore`);
+        const showMoreButton = document.querySelector(`#${tab}ShowMore.show-more-button`); // Use querySelector to ensure matching class
         const errorElement = document.getElementById(`${tab}Error`);
 
         if (!content || !showMoreButton || !errorElement) {
@@ -140,7 +140,7 @@ function displayPaydates(tab) {
         if (totalItems === 0) {
             console.warn(`No paydates available for ${tab} in filteredPaydates`);
         }
-        const end = Math.min(window.visibleItems[tab] || 10, totalItems); // Default to 10 if visibleItems[tab] is undefined
+        const end = Math.min(window.visibleItems[tab] || 10, totalItems); // Default to 10 if window.visibleItems[tab] is undefined
         const paginatedPaydates = window.filteredPaydates[tab]?.slice(0, end) || [];
 
         content.innerHTML = '';
@@ -176,14 +176,14 @@ function displayPaydates(tab) {
 
 function showMore(tab) {
     try {
-        console.log(`Attempting to show more for ${tab}: visibleItems[${tab}] = ${window.visibleItems[tab]}, filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
+        console.log(`Attempting to show more for ${tab}: window.visibleItems[${tab}] = ${window.visibleItems[tab]}, window.filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
         if (!window.filteredPaydates[tab] || window.filteredPaydates[tab].length === 0) {
             console.error(`No paydates available for ${tab} in filteredPaydates`);
             throw new Error(`No paydates available for ${tab}`);
         }
-        if (!window.visibleItems[tab]) {
-            window.visibleItems[tab] = 10; // Reset to default if undefined
-            console.warn(`visibleItems[${tab}] was undefined, reset to 10`);
+        if (!window.visibleItems[tab] || isNaN(window.visibleItems[tab])) {
+            window.visibleItems[tab] = 10; // Reset to default if undefined or NaN
+            console.warn(`window.visibleItems[${tab}] was invalid (${window.visibleItems[tab]}), reset to 10`);
         }
         window.visibleItems[tab] += itemsPerLoad;
         displayPaydates(tab);
@@ -265,14 +265,31 @@ function toggleTheme() {
     }
 }
 
-// Initial display and periodic refresh
+// Test "Show More" button manually to confirm event listener
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        console.log('DOM loaded, initializing paydates...');
+        console.log('DOM loaded, initializing paydates and testing "Show More" button...');
         initializeFilteredPaydates();
         displayPaydates('upcoming');
         displayPaydates('previous');
         openTab('upcoming'); // Default to Upcoming tab
+
+        // Test "Show More" button event listeners
+        const upcomingShowMore = document.getElementById('upcomingShowMore');
+        const previousShowMore = document.getElementById('previousShowMore');
+        if (upcomingShowMore) {
+            console.log('Found upcomingShowMore button, testing onclick...');
+            upcomingShowMore.addEventListener('click', () => showMore('upcoming'));
+        } else {
+            console.error('upcomingShowMore button not found in DOM');
+        }
+        if (previousShowMore) {
+            console.log('Found previousShowMore button, testing onclick...');
+            previousShowMore.addEventListener('click', () => showMore('previous'));
+        } else {
+            console.error('previousShowMore button not found in DOM');
+        }
+
         setInterval(() => {
             console.log('Refreshing paydates...');
             initializeFilteredPaydates();
