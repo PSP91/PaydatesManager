@@ -69,12 +69,15 @@ function formatDateForComparison(dateStr) {
     return new Date(year, month - 1, day);
 }
 
-// Display paydates (minimal version for testing with error handling)
-function displayPaydates(tab) {
+// Pagination settings
+const itemsPerPage = 10;
+let currentPage = { upcoming: 1, previous: 1 };
+let filteredPaydates = { upcoming: [], previous: [] };
+
+// Initialize filtered paydates
+function initializeFilteredPaydates() {
     try {
-        const content = document.getElementById(`${tab}Paydates`);
-        const errorElement = document.getElementById(`${tab}Error`);
-        const upcomingPaydates = paydates.filter(paydate => {
+        filteredPaydates.upcoming = paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             return payDate > currentDateObj;
         }).sort((a, b) => {
@@ -83,7 +86,7 @@ function displayPaydates(tab) {
             return dateA - dateB; // Ascending order (next paydate at top, then chronological)
         });
 
-        const previousPaydates = paydates.filter(paydate => {
+        filteredPaydates.previous = paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             return payDate <= currentDateObj;
         }).sort((a, b) => {
@@ -91,92 +94,5 @@ function displayPaydates(tab) {
             const dateB = formatDateForComparison(b.payDay);
             return dateB - dateA; // Descending order (most recent first)
         });
-
-        if (tab === 'upcoming') {
-            content.innerHTML = '';
-            errorElement.style.display = 'none';
-            if (upcomingPaydates.length > 0) {
-                upcomingPaydates.forEach(paydate => {
-                    const card = document.createElement('div');
-                    card.className = 'paydate-card';
-                    card.innerHTML = `
-                        <h3>Pay Period</h3>
-                        <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
-                        <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
-                        <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
-                    `;
-                    content.appendChild(card);
-                });
-            } else {
-                content.innerHTML = '<p>No upcoming paydates.</p>';
-            }
-        } else if (tab === 'previous') {
-            content.innerHTML = '';
-            errorElement.style.display = 'none';
-            if (previousPaydates.length > 0) {
-                previousPaydates.forEach(paydate => {
-                    const card = document.createElement('div');
-                    card.className = 'paydate-card';
-                    card.innerHTML = `
-                        <h3>Pay Period</h3>
-                        <p><strong>Week Start:</strong> <span class="week-start">${paydate.weekStart}</span></p>
-                        <p><strong>Week Ending:</strong> ${paydate.weekEnding}</p>
-                        <p><strong>Pay Day:</strong> <span class="pay-day">${paydate.payDay}</span></p>
-                    `;
-                    content.appendChild(card);
-                });
-            } else {
-                content.innerHTML = '<p>No previous paydates.</p>';
-            }
-        }
+        console.log('Filtered paydates initialized:', { upcoming: filteredPaydates.upcoming, previous: filteredPaydates.previous });
     } catch (error) {
-        console.error(`Error displaying ${tab} paydates:`, error);
-        const errorElement = document.getElementById(`${tab}Error`);
-        errorElement.style.display = 'block';
-    }
-}
-
-function openTab(tabName) {
-    try {
-        const tabButtons = document.getElementsByClassName('tab-button');
-        const tabContents = document.getElementsByClassName('tab-content');
-
-        for (let i = 0; i < tabButtons.length; i++) {
-            tabButtons[i].classList.remove('active');
-        }
-        for (let i = 0; i < tabContents.length; i++) {
-            tabContents[i].classList.remove('active');
-        }
-
-        document.getElementsByClassName('tab-button')[tabName === 'upcoming' ? 0 : 1].classList.add('active');
-        document.getElementById(tabName).classList.add('active');
-        displayPaydates(tabName); // Display paydates for the selected tab
-    } catch (error) {
-        console.error('Error opening tab:', error);
-    }
-}
-
-function toggleTheme() {
-    const body = document.body;
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.removeAttribute('data-theme');
-    } else {
-        body.setAttribute('data-theme', 'dark');
-    }
-}
-
-// Initial display
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        console.log('DOM loaded, initializing paydates...');
-        displayPaydates('upcoming');
-        openTab('upcoming'); // Default to Upcoming tab
-        setInterval(() => {
-            console.log('Refreshing paydates...');
-            displayPaydates('upcoming');
-            displayPaydates('previous');
-        }, 60000); // Refresh every minute
-    } catch (error) {
-        console.error('Error on page load:', error);
-    }
-});
