@@ -134,9 +134,10 @@ function displayPaydates(tab) {
             throw new Error(`DOM elements for ${tab} are missing`);
         }
 
-        const totalItems = filteredPaydates[tab].length;
+        console.log(`Displaying ${tab} paydates: filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}, visibleItems[${tab}] = ${visibleItems[tab]}`);
+        const totalItems = filteredPaydates[tab]?.length || 0;
         const end = Math.min(visibleItems[tab], totalItems);
-        const paginatedPaydates = filteredPaydates[tab].slice(0, end);
+        const paginatedPaydates = filteredPaydates[tab]?.slice(0, end) || [];
 
         content.innerHTML = '';
         errorElement.style.display = 'none';
@@ -171,9 +172,14 @@ function displayPaydates(tab) {
 
 function showMore(tab) {
     try {
-        if (!filteredPaydates[tab] || !visibleItems[tab]) {
-            console.error(`Invalid state for ${tab}: filteredPaydates or visibleItems is undefined`);
-            throw new Error(`Invalid state for ${tab}`);
+        console.log(`Attempting to show more for ${tab}: visibleItems[${tab}] = ${visibleItems[tab]}, filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}`);
+        if (!filteredPaydates[tab] || filteredPaydates[tab].length === 0) {
+            console.error(`No paydates available for ${tab} in filteredPaydates`);
+            throw new Error(`No paydates available for ${tab}`);
+        }
+        if (!visibleItems[tab]) {
+            visibleItems[tab] = 10; // Reset to default if undefined
+            console.warn(`visibleItems[${tab}] was undefined, reset to 10`);
         }
         visibleItems[tab] += itemsPerLoad;
         displayPaydates(tab);
@@ -187,6 +193,7 @@ function showMore(tab) {
 // Search and filter paydates
 function filterPaydates(tab) {
     try {
+        console.log(`Filtering ${tab} paydates: searchInput, yearFilter, monthFilter`);
         const searchInput = document.getElementById(`${tab}Search`)?.value.toLowerCase() || '';
         const yearFilter = document.getElementById(`${tab}YearFilter`)?.value || '';
         const monthFilter = document.getElementById(`${tab}MonthFilter`)?.value || '';
@@ -208,7 +215,7 @@ function filterPaydates(tab) {
             return tab === 'upcoming' ? dateA - dateB : dateB - dateA; // Ascending for upcoming, descending for previous
         });
 
-        visibleItems[tab] = Math.min(10, filteredPaydates[tab].length); // Reset to show first 10 items after filtering
+        visibleItems[tab] = Math.min(10, filteredPaydates[tab].length || 0); // Reset to show first 10 items after filtering, handle undefined
         displayPaydates(tab);
         console.log(`Filtered ${tab} paydates (count):`, filteredPaydates[tab].length);
     } catch (error) {
@@ -218,6 +225,7 @@ function filterPaydates(tab) {
 
 function openTab(tabName) {
     try {
+        console.log(`Opening tab: ${tabName}`);
         const tabButtons = document.getElementsByClassName('tab-button');
         const tabContents = document.getElementsByClassName('tab-content');
 
