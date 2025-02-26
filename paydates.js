@@ -1,6 +1,6 @@
 // Generate paydates for 2025, 2026, and 2027, starting from the specified pattern (06/03/2025)
 const paydates = [];
-let currentDate = new Date('2025-03-06'); // Start from the Pay Day of 06/03/2025 (a Thursday)
+let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -21,7 +21,7 @@ function ensureThursday(date) {
 }
 
 // Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
-const endDate = new Date('2028-03-06'); // Extend to cover 2027 fully (approximately 78 paydates every 14 days over 3 years)
+const endDate = new Date('2028-03-06T00:00:00'); // Extend to cover 2027 fully (approximately 78 paydates every 14 days over 3 years)
 while (currentDate < endDate) {
     try {
         // Pay Day is a Thursday (ensured by ensureThursday)
@@ -63,11 +63,11 @@ while (currentDate < endDate) {
 console.log('Paydates generated:', paydates);
 
 // Use the current date as February 25, 2025, for consistency with your context
-const currentDateObj = new Date('2025-02-25');
+const currentDateObj = new Date('2025-02-25T00:00:00');
 
 function formatDateForComparison(dateStr) {
     const [day, month, year] = dateStr.split('/').map(Number);
-    return new Date(year, month - 1, day);
+    return new Date(year, month - 1, day, 0, 0, 0); // Explicitly set time to midnight for consistency
 }
 
 // Pagination settings
@@ -219,11 +219,18 @@ function openTab(tabName) {
 }
 
 function toggleTheme() {
-    const body = document.body;
-    if (body.getAttribute('data-theme') === 'dark') {
-        body.removeAttribute('data-theme');
-    } else {
-        body.setAttribute('data-theme', 'dark');
+    try {
+        const body = document.body;
+        console.log('Toggling theme, current theme:', body.getAttribute('data-theme'));
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            console.log('Switched to light theme');
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            console.log('Switched to dark theme');
+        }
+    } catch (error) {
+        console.error('Error toggling theme:', error);
     }
 }
 
