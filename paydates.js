@@ -185,10 +185,11 @@ function showMore(tab) {
             window.visibleItems[tab] = 10; // Reset to default if undefined or NaN
             console.warn(`window.visibleItems[${tab}] was invalid (${window.visibleItems[tab]}), reset to 10`);
         }
-        window.visibleItems[tab] += itemsPerLoad;
+        window.visibleItems[tab] = (window.visibleItems[tab] || 10) + itemsPerLoad; // Force update and ensure increment
+        console.log(`Before displayPaydates: window.visibleItems[${tab}] = ${window.visibleItems[tab]}`);
         displayPaydates(tab);
         filterPaydates(tab); // Reapply filters after showing more
-        console.log(`Show More clicked for ${tab}, now showing ${window.visibleItems[tab]} items`);
+        console.log(`After displayPaydates: window.visibleItems[${tab}] = ${window.visibleItems[tab]}, Show More clicked for ${tab}, now showing ${window.visibleItems[tab]} items`);
     } catch (error) {
         console.error(`Error showing more for ${tab}:`, error);
     }
@@ -265,7 +266,7 @@ function toggleTheme() {
     }
 }
 
-// Test "Show More" button manually to confirm event listener
+// Initial display and periodic refresh
 document.addEventListener('DOMContentLoaded', () => {
     try {
         console.log('DOM loaded, initializing paydates and testing "Show More" button...');
@@ -274,18 +275,33 @@ document.addEventListener('DOMContentLoaded', () => {
         displayPaydates('previous');
         openTab('upcoming'); // Default to Upcoming tab
 
-        // Test "Show More" button event listeners
+        // Test and ensure "Show More" button event listeners
         const upcomingShowMore = document.getElementById('upcomingShowMore');
         const previousShowMore = document.getElementById('previousShowMore');
         if (upcomingShowMore) {
-            console.log('Found upcomingShowMore button, testing onclick...');
-            upcomingShowMore.addEventListener('click', () => showMore('upcoming'));
+            console.log('Found upcomingShowMore button, attaching event listener...');
+            upcomingShowMore.addEventListener('click', () => {
+                console.log('Upcoming Show More clicked via addEventListener');
+                showMore('upcoming');
+            });
+            // Verify the onclick attribute works
+            upcomingShowMore.onclick = () => {
+                console.log('Upcoming Show More clicked via onclick attribute');
+                showMore('upcoming');
+            };
         } else {
             console.error('upcomingShowMore button not found in DOM');
         }
         if (previousShowMore) {
-            console.log('Found previousShowMore button, testing onclick...');
-            previousShowMore.addEventListener('click', () => showMore('previous'));
+            console.log('Found previousShowMore button, attaching event listener...');
+            previousShowMore.addEventListener('click', () => {
+                console.log('Previous Show More clicked via addEventListener');
+                showMore('previous');
+            });
+            previousShowMore.onclick = () => {
+                console.log('Previous Show More clicked via onclick attribute');
+                showMore('previous');
+            };
         } else {
             console.error('previousShowMore button not found in DOM');
         }
