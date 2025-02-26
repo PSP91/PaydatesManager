@@ -1,27 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paydates</title>
     <style>
         :root {
-            --bg-color: #f0f4f8;
-            --card-bg-color: white;
-            --text-color: #333;
-            --header-color: #2c3e50;
-            --week-start-color: #3498db;
-            --pay-day-color: #e74c3c;
-            --tab-bg-color: #ddd;
-            --active-tab-bg-color: #3498db;
-            --active-tab-text-color: white;
-            --input-bg-color: #fff;
-            --input-border-color: #ddd;
-            --button-bg-color: #3498db;
-            --button-text-color: white;
-        }
-
-        [data-theme="dark"] {
             --bg-color: #2c3e50;
             --card-bg-color: #34495e;
             --text-color: #ecf0f1;
@@ -59,15 +43,24 @@
         .theme-toggle {
             position: absolute;
             top: 20px;
-            right: 20px;
+            right: 10px; /* Adjusted for smaller size */
             background-color: var(--card-bg-color);
             color: var(--text-color);
             border: 1px solid var(--text-color);
-            border-radius: 4px;
-            padding: 8px 15px;
+            border-radius: 50%; /* Circular for light bulb */
+            width: 24px; /* Smaller size */
+            height: 24px; /* Smaller size */
+            padding: 0;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px; /* Smaller text/icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
+        }
+        .theme-toggle::before {
+            content: '\2728'; /* Unicode light bulb symbol (✨) */
+            font-size: 16px; /* Adjust size of the icon */
         }
         .theme-toggle:hover {
             background-color: var(--text-color);
@@ -159,7 +152,7 @@
 <body>
     <div class="container">
         <h1>Paydates</h1>
-        <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+        <button class="theme-toggle" onclick="toggleTheme()"></button> <!-- Light bulb icon, but we'll remove the onclick for permanence -->
         <div class="tabs">
             <button class="tab-button active" onclick="openTab('upcoming')">Upcoming</button>
             <button class="tab-button" onclick="openTab('previous')">Previous</button>
@@ -184,44 +177,4 @@
                     <option value="7">July</option>
                     <option value="8">August</option>
                     <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-            </div>
-            <div id="upcomingPaydates"></div>
-            <div class="pagination" id="upcomingPagination"></div>
-        </div>
-        <div id="previous" class="tab-content">
-            <div class="search-filter">
-                <input type="text" id="previousSearch" placeholder="Search paydates..." onkeyup="filterPaydates('previous')">
-                <select id="previousYearFilter" onchange="filterPaydates('previous')">
-                    <option value="">All Years</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                    <option value="2027">2027</option>
-                </select>
-                <select id="previousMonthFilter" onchange="filterPaydates('previous')">
-                    <option value="">All Months</option>
-                    <option value="1">January</option>
-                    <option value="2">February</option>
-                    <option value="3">March</option>
-                    <option value="4">April</option>
-                    <option value="5">May</option>
-                    <option value="6">June</option>
-                    <option value="7">July</option>
-                    <option value="8">August</option>
-                    <option value="9">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-            </div>
-            <div id="previousPaydates"></div>
-            <div class="pagination" id="previousPagination"></div>
-        </div>
-    </div>
-
-    <script src="paydates.js"></script>
-</body>
-</html>
+                    <option value="10">October</option
