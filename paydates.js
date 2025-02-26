@@ -1,8 +1,8 @@
-// Global variables
-const paydates = [];
-let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
-let filteredPaydates = { upcoming: [], previous: [] }; // Ensure filteredPaydates is defined globally
-let visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible for each tab
+// Global variables (using window to ensure global scope)
+window.paydates = [];
+window.currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
+window.filteredPaydates = { upcoming: [], previous: [] }; // Ensure filteredPaydates is defined globally
+window.visibleItems = { upcoming: 10, previous: 10 }; // Initial 10 items visible for each tab
 
 // Function to format date as DD/MM/YYYY
 function formatDate(date) {
@@ -51,36 +51,36 @@ function ensureSunday(date) {
 // Generate paydates for 2025 and 2026, every 14 days starting from 06/03/2025
 const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (approximately 48 paydates)
 
-while (currentDate < endDate) {
+while (window.currentDate < endDate) {
     try {
         // Pay Day is a Thursday (ensured by ensureThursday)
-        ensureThursday(currentDate);
+        ensureThursday(window.currentDate);
 
         // Week Ending is a Sunday, 2 weeks (14 days) before Pay Day
-        const weekEnding = new Date(currentDate);
-        weekEnding.setDate(currentDate.getDate() - 14);
+        const weekEnding = new Date(window.currentDate);
+        weekEnding.setDate(window.currentDate.getDate() - 14);
         ensureSunday(weekEnding);
 
         // Week Starting is a Monday, 4 weeks (28 days) before Pay Day
-        const weekStart = new Date(currentDate);
-        weekStart.setDate(currentDate.getDate() - 28);
+        const weekStart = new Date(window.currentDate);
+        weekStart.setDate(window.currentDate.getDate() - 28);
         ensureMonday(weekStart);
 
-        paydates.push({
+        window.paydates.push({
             weekStart: formatDate(weekStart),
             weekEnding: formatDate(weekEnding),
-            payDay: formatDate(currentDate)
+            payDay: formatDate(window.currentDate)
         });
 
         // Move to the next Pay Day (14 days later), ensuring no day offset
-        currentDate.setDate(currentDate.getDate() + 14);
+        window.currentDate.setDate(window.currentDate.getDate() + 14);
     } catch (error) {
-        console.error('Error generating paydate:', error, { currentDate, weekStart, weekEnding });
+        console.error('Error generating paydate:', error, { currentDate: window.currentDate, weekStart, weekEnding });
         throw error;
     }
 }
 
-console.log('Paydates generated (total):', paydates.length, paydates);
+console.log('Paydates generated (total):', window.paydates.length, window.paydates);
 
 // Use the current date as February 25, 2025, for consistency with your context
 const currentDateObj = new Date('2025-02-25T00:00:00');
@@ -97,7 +97,7 @@ const itemsPerLoad = 10;
 function initializeFilteredPaydates() {
     try {
         console.log('Initializing filtered paydates...');
-        filteredPaydates.upcoming = paydates.filter(paydate => {
+        window.filteredPaydates.upcoming = window.paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             return payDate > currentDateObj;
         }).sort((a, b) => {
@@ -106,7 +106,7 @@ function initializeFilteredPaydates() {
             return dateA - dateB; // Ascending order (next paydate at top, then chronological)
         });
 
-        filteredPaydates.previous = paydates.filter(paydate => {
+        window.filteredPaydates.previous = window.paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             return payDate <= currentDateObj;
         }).sort((a, b) => {
@@ -114,7 +114,7 @@ function initializeFilteredPaydates() {
             const dateB = formatDateForComparison(b.payDay);
             return dateB - dateA; // Descending order (most recent first)
         });
-        console.log('Filtered paydates initialized (upcoming, previous):', { upcoming: filteredPaydates.upcoming.length, previous: filteredPaydates.previous.length });
+        console.log('Filtered paydates initialized (upcoming, previous):', { upcoming: window.filteredPaydates.upcoming.length, previous: window.filteredPaydates.previous.length });
         displayPaydates('upcoming'); // Display initial paydates after initialization
         displayPaydates('previous');
     } catch (error) {
@@ -126,7 +126,7 @@ function initializeFilteredPaydates() {
 // Display paydates with "Show More" functionality
 function displayPaydates(tab) {
     try {
-        console.log(`Attempting to display ${tab} paydates: visibleItems[${tab}] = ${visibleItems[tab]}, filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}`);
+        console.log(`Attempting to display ${tab} paydates: visibleItems[${tab}] = ${window.visibleItems[tab]}, filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
         const content = document.getElementById(`${tab}Paydates`);
         const showMoreButton = document.getElementById(`${tab}ShowMore`);
         const errorElement = document.getElementById(`${tab}Error`);
@@ -136,12 +136,12 @@ function displayPaydates(tab) {
             throw new Error(`DOM elements for ${tab} are missing`);
         }
 
-        const totalItems = filteredPaydates[tab]?.length || 0;
+        const totalItems = window.filteredPaydates[tab]?.length || 0;
         if (totalItems === 0) {
             console.warn(`No paydates available for ${tab} in filteredPaydates`);
         }
-        const end = Math.min(visibleItems[tab] || 10, totalItems); // Default to 10 if visibleItems[tab] is undefined
-        const paginatedPaydates = filteredPaydates[tab]?.slice(0, end) || [];
+        const end = Math.min(window.visibleItems[tab] || 10, totalItems); // Default to 10 if visibleItems[tab] is undefined
+        const paginatedPaydates = window.filteredPaydates[tab]?.slice(0, end) || [];
 
         content.innerHTML = '';
         errorElement.style.display = 'none';
@@ -176,19 +176,19 @@ function displayPaydates(tab) {
 
 function showMore(tab) {
     try {
-        console.log(`Attempting to show more for ${tab}: visibleItems[${tab}] = ${visibleItems[tab]}, filteredPaydates[${tab}].length = ${filteredPaydates[tab]?.length || 'undefined'}`);
-        if (!filteredPaydates[tab] || filteredPaydates[tab].length === 0) {
+        console.log(`Attempting to show more for ${tab}: visibleItems[${tab}] = ${window.visibleItems[tab]}, filteredPaydates[${tab}].length = ${window.filteredPaydates[tab]?.length || 'undefined'}`);
+        if (!window.filteredPaydates[tab] || window.filteredPaydates[tab].length === 0) {
             console.error(`No paydates available for ${tab} in filteredPaydates`);
             throw new Error(`No paydates available for ${tab}`);
         }
-        if (!visibleItems[tab]) {
-            visibleItems[tab] = 10; // Reset to default if undefined
+        if (!window.visibleItems[tab]) {
+            window.visibleItems[tab] = 10; // Reset to default if undefined
             console.warn(`visibleItems[${tab}] was undefined, reset to 10`);
         }
-        visibleItems[tab] += itemsPerLoad;
+        window.visibleItems[tab] += itemsPerLoad;
         displayPaydates(tab);
         filterPaydates(tab); // Reapply filters after showing more
-        console.log(`Show More clicked for ${tab}, now showing ${visibleItems[tab]} items`);
+        console.log(`Show More clicked for ${tab}, now showing ${window.visibleItems[tab]} items`);
     } catch (error) {
         console.error(`Error showing more for ${tab}:`, error);
     }
@@ -202,7 +202,7 @@ function filterPaydates(tab) {
         const yearFilter = document.getElementById(`${tab}YearFilter`)?.value || '';
         const monthFilter = document.getElementById(`${tab}MonthFilter`)?.value || '';
 
-        filteredPaydates[tab] = paydates.filter(paydate => {
+        window.filteredPaydates[tab] = window.paydates.filter(paydate => {
             const payDate = formatDateForComparison(paydate.payDay);
             const payDateStr = `${paydate.weekStart} ${paydate.weekEnding} ${paydate.payDay}`.toLowerCase();
             const year = payDate.getFullYear();
@@ -219,9 +219,9 @@ function filterPaydates(tab) {
             return tab === 'upcoming' ? dateA - dateB : dateB - dateA; // Ascending for upcoming, descending for previous
         });
 
-        visibleItems[tab] = Math.min(10, filteredPaydates[tab].length || 0); // Reset to show first 10 items after filtering, handle undefined
+        window.visibleItems[tab] = Math.min(10, window.filteredPaydates[tab].length || 0); // Reset to show first 10 items after filtering, handle undefined
         displayPaydates(tab);
-        console.log(`Filtered ${tab} paydates (count):`, filteredPaydates[tab].length);
+        console.log(`Filtered ${tab} paydates (count):`, window.filteredPaydates[tab].length);
     } catch (error) {
         console.error(`Error filtering ${tab} paydates:`, error);
     }
