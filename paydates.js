@@ -1,4 +1,4 @@
-// Generate paydates for 2025, 2026, and 2027, starting from the specified pattern (06/03/2025)
+// Generate paydates for 2025 and 2026, starting from the specified pattern (06/03/2025)
 const paydates = [];
 let currentDate = new Date('2025-03-06T00:00:00'); // Start from the Pay Day of 06/03/2025 (a Thursday), explicit time for consistency
 
@@ -46,8 +46,8 @@ function ensureSunday(date) {
     return date;
 }
 
-// Generate paydates for 3 years (2025, 2026, 2027), every 14 days starting from 06/03/2025
-const endDate = new Date('2028-03-06T00:00:00'); // Extend to cover 2027 fully (approximately 78 paydates)
+// Generate paydates for 2025 and 2026, every 14 days starting from 06/03/2025
+const endDate = new Date('2027-01-01T00:00:00'); // Extend to cover all of 2026 (adjust if you need 2027 as well)
 
 while (currentDate < endDate) {
     try {
